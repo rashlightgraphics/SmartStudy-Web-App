@@ -48,7 +48,7 @@ Open the elearning.html file in your preferred code editor.
 Replace the placeholder Firebase configuration with your own configuration in the <script> tag.
 
 # Usage
-Simply open the elearning.html file in your web browser. You can then:
+Simply open the smartstudy.html file in your web browser. You can then:
 
 Browse courses and download resources.
 
