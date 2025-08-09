@@ -41,7 +41,7 @@ Get Firebase Config: Go to your project settings, find the "Your apps" section, 
 # Installation
 Clone the repository:
 
-git clone https://github.com/rashlightgraphics/smartstudy.git
+git clone https://github.com/rashlightgraphics/SmartStudy-Web-App
 
 Open the elearning.html file in your preferred code editor.
 
