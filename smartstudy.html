@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartStudy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+            color: #1a202c;
+        }
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-effect {
+            background: rgb(255, 255, 255);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .hero-bg {
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://ghana.actionaid.org/sites/ghana/files/styles/post_header_/public/images/2019-07/Education%20Financing.png?h=97b97774&itok=jwdKo8nv');
+            background-size: cover;
+            background-position: center;
+        }
+        .card-hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        /* Style for no results message */
+        .no-results {
+            display: none; /* Hidden by default */
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.25rem;
+            color: #4a5568;
+        }
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 40;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="fixed w-full z-30 top-0 glass-effect font-inter">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-20">
+                <!-- Site branding -->
+                <div class="flex-shrink-0 mr-4">
+                    <a href="#home" class="flex items-center text-#4052D6">
+                        <span class="text-2xl font-extrabold">SmartStudy</span>
+                    </a>
+                </div>
+
+                <!-- General Search Bar -->
+                <div class="flex-grow flex justify-center px-4">
+                    <div class="relative w-full max-w-lg">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <input id="general-search" type="text" placeholder="Search anything..." class="w-full pl-10 pr-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center">
+                    <ul class="flex justify-end flex-wrap items-center">
+                        <li><a href="#courses" class="text-#0000FF-300  px-4 py-2 flex items-center  ">Courses</a></li>
+                        <li><a href="#course-notes" class="text-#0000FF-300  px-4 py-2 flex items-center  ">Course Notes</a></li>
+                        <li><a href="#resources" class="text-#0000FF-300  px-4 py-2 flex items-center  ">Resources</a></li>
+                        <li><a href="#past-questions" class="text-#0000FF-300  px-4 py-2 flex items-center ">Past Questions</a></li>
+                        <li><a href="#ai-quiz" class="text-#0000FF-300  px-4 py-2 flex items-center ">Quiz</a></li>
+                
+                    </ul>
+                    <div class="ml-4 flex items-center">
+                        <button id="user-account-btn" class="text-gray-300 hover:text-white">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </button>
+                         <button id="logout-btn" class="hidden bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-600 transition">Logout</button>
+                         <button id="change-password-btn" class="hidden bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-blue-600 transition ml-2">Change Password</button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section id="home" class="relative hero-bg">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="pt-32 pb-12 md:pt-40 md:pb-20">
+                    <div class="text-center pb-12 md:pb-16">
+                        <h1 class="text-5xl md:text-6xl font-extrabold leading-tighter tracking-tighter mb-4 text-white" data-aos="zoom-y-out">
+                            Shape Your Studies with <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">SmartStudy</span>
+                        </h1>
+                        <div class="max-w-3xl mx-auto">
+                            <p class="text-xl text-white mb-8" data-aos="zoom-y-out" data-aos-delay="150">Welcome, <span id="username-display" class="font-bold">Guest</span>! Your one-stop destination for quality educational resources, courses, and exam preparation materials.</p>
+                            <div class="max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center">
+                                <a href="#courses" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Explore Courses</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Courses Section -->
+        <section id="courses" class="py-20 searchable-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-extrabold text-gray-800">Our Courses</h2>
+                    <p class="text-lg text-gray-600 mt-2">Expand your knowledge with our digital courses.</p>
+                </div>
+
+                <div id="course-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Course Card 1: Mathematics -->
+                    <div class="searchable-item bg-white rounded-xl shadow-lg overflow-hidden card-hover-effect">
+                        <img src="https://placehold.co/600x400/818cf8/ffffff?text=Maths" alt="Maths" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-gray-800">Mathematics</h3>
+                            <p class="text-gray-600 mb-4">From basic algebra to advanced calculus.</p>
+                            <a href="https://www.khanacademy.org/math/k-8-grades" target="_blank" class="inline-flex items-center text-indigo-500 hover:text-indigo-700 font-semibold">
+                                View
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course Card 2: Science -->
+                    <div class="searchable-item bg-white rounded-xl shadow-lg overflow-hidden card-hover-effect">
+                        <img src="https://placehold.co/600x400/34d399/ffffff?text=Science" alt="Science" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-gray-800">Science</h3>
+                            <p class="text-gray-600 mb-4">Explore the wonders of physics, chemistry, and biology.</p>
+                            <a href="https://www.scienceintheclassroom.org/topics" target="_blank" class="inline-flex items-center text-green-500 hover:text-green-700 font-semibold">
+                                View
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                     <!-- Course Card 3: Social -->
+                    <div class="searchable-item bg-white rounded-xl shadow-lg overflow-hidden card-hover-effect">
+                        <img src="https://placehold.co/600x400/FF0000/ffffff?text=Social " alt="Social" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-gray-800">Social Studies</h3>
+                            <p class="text-gray-600 mb-4">Explore the concepts of the government</p>
+                            <a href="https://mingycomputersgh.wordpress.com/wp-content/uploads/2014/10/social-studies-jhs-1-31.pdf" target="_blank" class="inline-flex items-center text-red-500 hover:text-red-700 font-semibold">
+                                View
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                     <!-- Course Card 4: Computing -->
+                    <div class="searchable-item bg-white rounded-xl shadow-lg overflow-hidden card-hover-effect">
+                        <img src="https://placehold.co/600x400/00000/ffffff?text=Computing" alt="Computing" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-00000-800">Computing</h3>
+                            <p class="text-00000-600 mb-4">Learn Technology</p>
+                            <a href="https://www.khanacademy.org/computing/intro-to-python-fundamentals" target="_blank" class="inline-flex items-center text-black-500 hover:text-00000-700 font-semibold">
+                                View 
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course Card 5: RME -->
+                    <div class="searchable-item bg-white rounded-xl shadow-lg overflow-hidden card-hover-effect">
+                        <img src="https://placehold.co/600x400/964B00/ffffff?text=RME" alt="RME" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-964B00-800">RME</h3>
+                            <p class="text-964B00-600 mb-4">Religious and Moral Educational studies</p>
+                            <a href="https://nacca.gov.gh/wp-content/uploads/2022/10/Religious-and-Moral-Education.pdf" target="_blank" class="inline-flex items-center text-brown-500 hover:text-964B00-700 font-semibold">
+                                View 
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course Card 6: History -->
+                    <div class="searchable-item bg-white rounded-xl shadow-lg overflow-hidden card-hover-effect">
+                        <img src="https://placehold.co/600x400/800080/ffffff?text=History" alt="History" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-800080-800">History</h3>
+                            <p class="text-800080-600 mb-4">Explore the wonders of our Fore Fathers.</p>
+                            <a href="https://nacca.gov.gh/wp-content/uploads/2019/04/HISTORY-B1-B6.pdf" target="_blank" class="inline-flex items-center text-800080-500 hover:text-800080-700 font-semibold">
+                                View 
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course Card 7: Creative Art -->
+                    <div class="searchable-item bg-white rounded-xl shadow-lg overflow-hidden card-hover-effect">
+                        <img src="https://placehold.co/600x400/7F00FF/ffffff?text=Creative Art" alt="Creative Art" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-7F00FF-800">Creative Art</h3>
+                            <p class="text-7F00FF-600 mb-4">Educates the learner in Art</p>
+                            <a href="https://nacca.gov.gh/wp-content/uploads/2022/10/Creative-Arts-and-Designs.pdf" target="_blank" class="inline-flex items-center text-Violet-500 hover:text-7F00FF-700 font-semibold">
+                                View 
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course Card 8: Career Technology -->
+                    <div class="searchable-item bg-white rounded-xl shadow-lg overflow-hidden card-hover-effect">
+                        <img src="https://placehold.co/600x400/B2BEB5/ffffff?text=C.TECH" alt="C.TECH" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-B2BEB5-800">C.TECH</h3>
+                            <p class="text-B2BEB5-600 mb-4"> Acquisition of practical skills through Technology.</p>
+                            <a href="https://nacca.gov.gh/wp-content/uploads/2022/10/Career-Technology.pdf" target="_blank" class="inline-flex items-center text-B2BEB5-500 hover:text-green-700 font-semibold">
+                                View 
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course Card 3: English Language -->
+                    <div class="searchable-item bg-white rounded-xl shadow-lg overflow-hidden card-hover-effect">
+                        <img src="https://placehold.co/600x400/fbbf24/ffffff?text=English" alt="English Language" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-gray-800">English Language</h3>
+                            <p class="text-gray-600 mb-4">Improve your grammar, vocabulary, and communication skills.</p>
+                            <a href="https://www.khanacademy.org/humanities/grammar" target="_blank" class="inline-flex items-center text-amber-500 hover:text-amber-700 font-semibold">
+                                View 
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                 <div class="no-results" id="courses-no-results">No courses found.</div>
+            </div>
+
+           
+        </section>
+        
+   <!-- Add this inside the 'Course Notes' section -->
+<section id="course-notes" class="py-20 bg-gray-50">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-extrabold text-gray-800">My Course Notes</h2>
+      <p class="text-lg text-gray-600 mt-2">Create and manage your own study notes.</p>
+    </div>
+    <div id="saved-notes" class="space-y-4 mb-8"></div>
+    <div id="view-all-notes-container" class="text-center mt-4 hidden">
+        <button id="view-all-notes-btn" class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition">
+            View All Notes
+        </button>
+    </div>
+    <div id="note-editor" class="space-y-4"></div>
+    <div class="text-center mt-8">
+      <button id="add-note" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition">
+        + Add New Note
+      </button>
+    </div>
+  </div>
+</section>
+                  
+        <!-- Downloadable Resources Section -->
+        <section id="resources" class="py-20 bg-white searchable-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-extrabold text-gray-800">Free Resources</h2>
+                    <p class="text-lg text-gray-600 mt-2">Downloadable study materials to aid your learning.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Resource Card 1: BECE GUIDELINES -->
+                    <div class="searchable-item bg-gray-50 p-6 rounded-lg text-center border border-gray-200 card-hover-effect">
+                        <div class="flex justify-center items-center mb-4 w-16 h-16 rounded-full bg-indigo-100 mx-auto">
+                           <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-5.747-8.247l11.494 4.994m-11.494-4.994l11.494-4.994M4 12l8 5 8-5M4 12l8-5 8 5"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">BECE GUIDELINES</h3>
+                        <p class="text-gray-600 mb-4">Regulations for Basic Exams Certificate (GHANA).</p>
+                        <a href="https://waecgh.org/wp-content/uploads/2024/05/2024-BECE-GUIDELINES-SCHEME-AND-STRUCTURE.pdf" download="Study-Notes.pdf" class="font-semibold text-indigo-600 hover:text-indigo-800 download-link">Download PDF</a>
+                    </div>
+                    <!-- Resource Card 2: Worksheets -->
+                    <div class="searchable-item bg-gray-50 p-6 rounded-lg text-center border border-gray-200 card-hover-effect">
+                        <div class="flex justify-center items-center mb-4 w-16 h-16 rounded-full bg-green-100 mx-auto">
+                            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Practice Worksheets</h3>
+                        <p class="text-gray-600 mb-4">For kids only </p>
+                        <a href="https://socialwelfare.tripura.gov.in/sites/default/files/Activity%20Book%20for%205-6%20years%20Children.pdf" download="Practice-Worksheets.pdf" class="font-semibold text-green-600 hover:text-green-800 download-link">Download PDF</a>
+                    </div>
+                    <!-- Resource Card 3: Formula Sheets -->
+                    <div class="searchable-item bg-gray-50 p-6 rounded-lg text-center border border-gray-200 card-hover-effect">
+                        <div class="flex justify-center items-center mb-4 w-16 h-16 rounded-full bg-amber-100 mx-auto">
+                            <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3.333M9 17v-3.333M12 14.333V21m-5.333-10H3.333v4h3.334v-4zm13.334 0h-3.334v4h3.334v-4zM12 3L3 7v10l9 4 9-4V7l-9-4z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Formula Sheets</h3>
+                        <p class="text-gray-600 mb-4">Handy collection of important formulas.</p>
+                        <a href="https://stmary.wcdsb.ca/wp-content/uploads/sites/64/2018/09/g9-formula-sheet-academic-EQAO.pdf" download="Formula-Sheets.pdf" class="font-semibold text-amber-600 hover:text-amber-800 download-link">Download PDF</a>
+                    </div>
+                </div>
+                <div class="no-results" id="resources-no-results">No resources found.</div>
+            </div>
+        </section>
+
+        <!-- Past Questions Section -->
+        <section id="past-questions" class="py-20 searchable-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-extrabold text-gray-800">Download Past Questions</h2>
+                    <p class="text-lg text-gray-600 mt-2">Prepare for your exams with official past papers.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <ul class="space-y-4">
+                        <li class="searchable-item flex justify-between items-center p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition">
+                            <span class="font-semibold text-gray-700">Mathematics Past Questions 2024 </span>
+                            <a href="https://kuulchat.com/bece/papers/bece%202024%20mathematics.pdf" download="Maths-Past-Paper-2023.pdf" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition download-link">Download</a>
+                        </li>
+                        <li class="searchable-item flex justify-between items-center p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition">
+                            <span class="font-semibold text-gray-700">Science Past Questions 2023 </span>
+                            <a href="https://mingycomputersgh.wordpress.com/wp-content/uploads/2023/08/post-integrated-science-bece-2023_questions-only.pdf" download="Science-Past-Paper-2023.pdf" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition download-link">Download</a>
+                        </li>
+                        <li class="searchable-item flex justify-between items-center p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition">
+                            <span class="font-semibold text-gray-700">English Past Questions 2014 - 2017 </span>
+                            <a href="https://mingycomputersgh.wordpress.com/wp-content/uploads/2021/09/2014-2017-english-1.pdf" download="English-Past-Paper-2023.pdf" class="bg-amber-500 text-white px-4 py-2 rounded-md hover:bg-amber-600 transition download-link">Download</a>
+                        </li>
+                         <li class="searchable-item flex justify-between items-center p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition">
+                            <span class="font-semibold text-gray-700">Social Studies Past Questions 2014 - 2016</span>
+                            <a href="https://mingycomputersgh.wordpress.com/wp-content/uploads/2021/09/socialstudies2014-2016pastquestions26answers_decrypted.pdf" download="Social-Studies-Past-Paper-2023.pdf" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition download-link">Download</a>
+                        </li>
+                    </ul>
+                     <div class="no-results" id="questions-no-results">No past questions found.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Quiz Section -->
+        <section id="ai-quiz" class="py-20 bg-gray-50">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-extrabold text-gray-800">SmartStudy Quiz Generator</h2>
+                    <p class="text-lg text-gray-600 mt-2">Test your knowledge with a quiz generated just for you.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                        <select id="quiz-subject" class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Science">Science</option>
+                            <option value="English">English</option>
+                            <option value="Social Studies">Social Studies</option>
+                            <option value="Computing">Computing</option>
+                            <option value="RME">RME</option>
+                            <option value="Creative Arts">Creative Arts</option>
+                            <option value="Career Technology">Career Technology</option>
+                            <option value="Mixed Topics">Mixed Topics</option>
+                        </select>
+                        <button id="generate-quiz-btn" class="w-full sm:w-auto bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition">Generate Quiz</button>
+                    </div>
+                    <div id="quiz-loader" class="hidden justify-center items-center my-8">
+                        <div class="loader"></div>
+                    </div>
+                    <div id="quiz-container" class="space-y-6"></div>
+                    <div id="quiz-results" class="text-center text-2xl font-bold mt-6"></div>
+                     <div id="quiz-explanation-container" class="mt-4 hidden">
+                        <button id="show-explanation-btn" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition">Show Explanations</button>
+                        <div id="explanations" class="mt-4 space-y-4 text-left"></div>
+                        <button id="take-another-quiz-btn" class="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600 transition mt-4">Take Another Quiz</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+                
+    </main>
+    
+    <!-- Login/Signup Modal -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-modal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <p id="auth-message" class="text-red-500 text-center mb-4" style="display: none;">Please log in or sign up to download more items.</p>
+            <div id="login-form">
+                <h2 class="text-2xl font-bold mb-4 text-center">Login</h2>
+                <input type="email" id="login-email" placeholder="Email" class="w-full p-2 border rounded mb-4">
+                <input type="password" id="login-password" placeholder="Password" class="w-full p-2 border rounded mb-4">
+                <button id="login-btn" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">Login</button>
+                <p class="mt-4 text-center"><a href="#" id="forgot-password-link" class="text-indigo-600 hover:underline">Forgot Password?</a></p>
+                <div class="my-4 flex items-center">
+                    <hr class="w-full border-gray-300">
+                    <span class="p-2 text-gray-500">OR</span>
+                    <hr class="w-full border-gray-300">
+                </div>
+                <button id="google-login-btn" class="w-full bg-white border border-gray-300 text-gray-700 py-2 rounded hover:bg-gray-50 transition flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.9 0 6.9 1.6 9.2 3.8l6.9-6.9C35.9 2.5 30.4 0 24 0 14.9 0 7.3 5.4 3 13.2l7.8 6C12.7 13.2 18 9.5 24 9.5z"></path><path fill="#34A853" d="M46.2 25.4c0-1.7-.2-3.4-.5-5H24v9.5h12.5c-.5 3.1-2.1 5.7-4.5 7.5l7.3 5.7c4.3-4 6.9-10 6.9-17.7z"></path><path fill="#FBBC05" d="M10.8 28.2c-.5-1.5-.8-3.1-.8-4.7s.3-3.2.8-4.7l-7.8-6C1.2 16.5 0 20.1 0 24s1.2 7.5 3 10.8l7.8-6.6z"></path><path fill="#EA4335" d="M24 48c6.5 0 12-2.1 16-5.6l-7.3-5.7c-2.1 1.4-4.8 2.2-7.7 2.2-6 0-11.3-3.7-13.2-8.8l-7.8 6C7.3 42.6 14.9 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
+                    Sign in with Google
+                </button>
+                <p class="mt-4 text-center">Don't have an account? <a href="#" id="show-signup" class="text-indigo-600 hover:underline">Sign up</a></p>
+            </div>
+            <div id="signup-form" style="display: none;">
+                <h2 class="text-2xl font-bold mb-4 text-center">Sign Up</h2>
+                <input type="text" id="signup-name" placeholder="Full Name" class="w-full p-2 border rounded mb-4">
+                <input type="email" id="signup-email" placeholder="Email" class="w-full p-2 border rounded mb-4">
+                <input type="password" id="signup-password" placeholder="Password" class="w-full p-2 border rounded mb-4">
+                <input type="text" id="signup-class" placeholder="Your Class (e.g., Grade 9)" class="w-full p-2 border rounded mb-4">
+                <button id="signup-btn" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">Sign Up</button>
+                <div class="my-4 flex items-center">
+                    <hr class="w-full border-gray-300">
+                    <span class="p-2 text-gray-500">OR</span>
+                    <hr class="w-full border-gray-300">
+                </div>
+                 <button id="google-signup-btn" class="w-full bg-white border border-gray-300 text-gray-700 py-2 rounded hover:bg-gray-50 transition flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.9 0 6.9 1.6 9.2 3.8l6.9-6.9C35.9 2.5 30.4 0 24 0 14.9 0 7.3 5.4 3 13.2l7.8 6C12.7 13.2 18 9.5 24 9.5z"></path><path fill="#34A853" d="M46.2 25.4c0-1.7-.2-3.4-.5-5H24v9.5h12.5c-.5 3.1-2.1 5.7-4.5 7.5l7.3 5.7c4.3-4 6.9-10 6.9-17.7z"></path><path fill="#FBBC05" d="M10.8 28.2c-.5-1.5-.8-3.1-.8-4.7s.3-3.2.8-4.7l-7.8-6C1.2 16.5 0 20.1 0 24s1.2 7.5 3 10.8l7.8-6.6z"></path><path fill="#EA4335" d="M24 48c6.5 0 12-2.1 16-5.6l-7.3-5.7c-2.1 1.4-4.8 2.2-7.7 2.2-6 0-11.3-3.7-13.2-8.8l-7.8 6C7.3 42.6 14.9 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
+                    Sign up with Google
+                </button>
+                <p class="mt-4 text-center">Already have an account? <a href="#" id="show-login" class="text-indigo-600 hover:underline">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-forgot-password-modal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 class="text-2xl font-bold mb-4 text-center">Reset Password</h2>
+            <p class="text-gray-600 mb-4 text-center">Enter your email address and we'll send you a link to reset your password.</p>
+            <input type="email" id="reset-email" placeholder="Email" class="w-full p-2 border rounded mb-4">
+            <button id="send-reset-email-btn" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">Send Reset Email</button>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-change-password-modal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 class="text-2xl font-bold mb-4 text-center">Change Password</h2>
+            <input type="password" id="current-password" placeholder="Current Password" class="w-full p-2 border rounded mb-4">
+            <input type="password" id="new-password" placeholder="New Password" class="w-full p-2 border rounded mb-4">
+            <input type="password" id="confirm-new-password" placeholder="Confirm New Password" class="w-full p-2 border rounded mb-4">
+            <button id="update-password-btn" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">Update Password</button>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal-overlay" style="justify-content: center; align-items: center;">
+        <div class="bg-white p-8 rounded-full shadow-lg">
+            <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+    </div>
+
+    <!-- Custom Alert/Confirm Modal -->
+    <div id="custom-alert-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="custom-alert-title" class="text-xl font-bold mb-4"></h3>
+            <p id="custom-alert-message" class="mb-6"></p>
+            <div class="flex justify-end space-x-4">
+                <button id="custom-alert-cancel" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 hidden">Cancel</button>
+                <button id="custom-alert-ok" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">OK</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-800 text-white py-12 font-inter">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- About -->
+                <div class="md:col-span-1">
+                    <h4 class="text-lg font-semibold mb-4">SmartStudy</h4>
+                    <p class="text-gray-400">Leading the way in digital education. Our mission is to make 
+                        learning accessible and engaging for everyone, everywhere.
+                     
+                    </p>
+                </div>
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#courses" class="text-gray-400 hover:text-white transition">Courses</a></li>
+                        <li><a href="#course-notes" class="text-gray-400 hover:text-white transition">Course Notes</a></li>
+                        <li><a href="#resources" class="text-gray-400 hover:text-white transition">Resources</a></li>
+                        <li><a href="#past-questions" class="text-gray-400 hover:text-white transition">Past Questions</a></li>
+                        <li><a href="#ai-quiz" class="text-gray-400 hover:text-white transition"> SmartStudy Quiz</a></li>
+                    </ul>
+                </div>
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Email: smartstudy@gmail.com</li>
+                        <li>Phone: +233 59 557 3305 </li>
+                        <li>Address: Accra, Ghana</li>
+                    </ul>
+                </div>
+                <!-- Social Media -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.71v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" /></svg></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12.014c0 4.437 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.942.359.308.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12.014C22 6.477 17.523 2 12 2z" clip-rule="evenodd" /></svg></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-gray-700 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 SmartStudy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      
+        // Your web app's Firebase configuration
+        // IMPORTANT: DO NOT expose your Firebase config directly in production.
+        // This is for demonstration purposes only.
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_kVcekVHdLRiT0z9eUZz1eAy4KT0pouk",
+            authDomain: "brilla-c0656.firebaseapp.com",
+            projectId: "brilla-c0656",
+            storageBucket: "brilla-c0656.firebasestorage.app",
+            messagingSenderId: "932703758427",
+            appId: "1:932703758427:web:925b22a064041d87c6377e",
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        // Custom Alert/Confirm Modal Elements
+        const customAlertModal = document.getElementById('custom-alert-modal');
+        const customAlertTitle = document.getElementById('custom-alert-title');
+        const customAlertMessage = document.getElementById('custom-alert-message');
+        const customAlertOkBtn = document.getElementById('custom-alert-ok');
+        const customAlertCancelBtn = document.getElementById('custom-alert-cancel');
+
+        let resolveCustomAlert;
+
+        // Function to show custom alert/confirm
+        function showCustomAlert(message, title = 'Alert', isConfirm = false) {
+            return new Promise((resolve) => {
+                customAlertTitle.textContent = title;
+                customAlertMessage.textContent = message;
+                customAlertCancelBtn.style.display = isConfirm ? 'block' : 'none';
+                customAlertModal.style.display = 'flex';
+
+                const handleOk = () => {
+                    customAlertModal.style.display = 'none';
+                    customAlertOkBtn.removeEventListener('click', handleOk);
+                    customAlertCancelBtn.removeEventListener('click', handleCancel);
+                    resolve(true);
+                };
+
+                const handleCancel = () => {
+                    customAlertModal.style.display = 'none';
+                    customAlertOkBtn.removeEventListener('click', handleOk);
+                    customAlertCancelBtn.removeEventListener('click', handleCancel);
+                    resolve(false);
+                };
+
+                customAlertOkBtn.addEventListener('click', handleOk);
+                customAlertCancelBtn.addEventListener('click', handleCancel);
+            });
+        }
+
+        // Simple script for smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetElement = document.querySelector(this.getAttribute('href'));
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // General Search Functionality
+        const searchInput = document.getElementById('general-search');
+        const searchableSections = document.querySelectorAll('.searchable-section');
+
+        searchInput.addEventListener('keyup', function(event) {
+            const searchQuery = event.target.value.toLowerCase().trim();
+
+            searchableSections.forEach(section => {
+                const items = section.querySelectorAll('.searchable-item');
+                const noResultsMessage = section.querySelector('.no-results');
+                let visibleItems = 0;
+
+                items.forEach(item => {
+                    const textContent = item.textContent.toLowerCase();
+                    if (textContent.includes(searchQuery)) {
+                        item.style.display = ''; // Use '' to reset to default display
+                        visibleItems++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Show or hide the "no results" message for the section
+                if (noResultsMessage) {
+                    if (visibleItems === 0 && searchQuery !== '') {
+                        noResultsMessage.style.display = 'block';
+                    } else {
+                        noResultsMessage.style.display = 'none';
+                    }
+                }
+                
+                // If a search query is entered, show the section, otherwise respect its default state
+                 section.style.display = (searchQuery.length > 0 && visibleItems === 0) ? 'block' : '';
+                 if(searchQuery.length > 0 && visibleItems > 0){
+                    section.scrollIntoView({ behavior: 'smooth' });
+                 }
+            });
+        });
+        
+        // User Authentication & Download Limiting
+        const userAccountBtn = document.getElementById('user-account-btn');
+        const authModal = document.getElementById('auth-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const showSignupBtn = document.getElementById('show-signup');
+        const showLoginBtn = document.getElementById('show-login');
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        const googleSignupBtn = document.getElementById('google-signup-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        const usernameDisplay = document.getElementById('username-display');
+        const authMessage = document.getElementById('auth-message');
+        const downloadLinks = document.querySelectorAll('.download-link');
+        const successModal = document.getElementById('success-modal');
+
+        // Forgot Password Elements
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const forgotPasswordModal = document.getElementById('forgot-password-modal');
+        const closeForgotPasswordModalBtn = document.getElementById('close-forgot-password-modal');
+        const resetEmailInput = document.getElementById('reset-email');
+        const sendResetEmailBtn = document.getElementById('send-reset-email-btn');
+
+        // Change Password Elements
+        const changePasswordModal = document.getElementById('change-password-modal');
+        const closeChangePasswordModalBtn = document.getElementById('close-change-password-modal');
+        const currentPasswordInput = document.getElementById('current-password');
+        const newPasswordInput = document.getElementById('new-password');
+        const confirmNewPasswordInput = document.getElementById('confirm-new-password');
+        const updatePasswordBtn = document.getElementById('update-password-btn');
+
+
+        userAccountBtn.addEventListener('click', () => {
+            authMessage.style.display = 'none';
+            authModal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            authModal.style.display = 'none';
+        });
+        
+        showSignupBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'block';
+        });
+
+        showLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupForm.style.display = 'none';
+            loginForm.style.display = 'block';
+        });
+        
+        loginBtn.addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                authModal.style.display = 'none';
+                showSuccessPopup();
+            } catch (error) {
+                console.error("Error logging in: ", error);
+                await showCustomAlert(error.message, 'Login Error');
+            }
+        });
+
+        signupBtn.addEventListener('click', async () => {
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const userClass = document.getElementById('signup-class').value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                // Create a document for the user in Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    name: name,
+                    email: email,
+                    class: userClass,
+                    downloadCount: 0
+                });
+                await signOut(auth); // Sign out after registration to force login
+                signupForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                const loginTitle = loginForm.querySelector('h2');
+                const successMessage = document.createElement('p');
+                successMessage.textContent = 'Registration successful! Please sign in.';
+                successMessage.classList.add('text-green-500', 'text-center', 'mb-4');
+                loginForm.insertBefore(successMessage, loginTitle);
+                document.getElementById('login-email').value = email;
+                setTimeout(() => {
+                    successMessage.remove();
+                }, 4000);
+            } catch (error) {
+                console.error("Error signing up: ", error);
+                await showCustomAlert(error.message, 'Signup Error');
+            }
+        });
+        
+        const handleGoogleSignIn = async () => {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
+
+                if (!userDoc.exists()) {
+                    // If user is new, create a new document
+                    await setDoc(userDocRef, {
+                        name: user.displayName,
+                        email: user.email,
+                        class: "Not specified",
+                        downloadCount: 0
+                    });
+                }
+                authModal.style.display = 'none';
+                showSuccessPopup();
+            } catch (error) {
+                console.error("Error with Google sign-in: ", error);
+                await showCustomAlert(error.message, 'Google Sign-in Error');
+            }
+        };
+
+        googleLoginBtn.addEventListener('click', handleGoogleSignIn);
+        googleSignupBtn.addEventListener('click', handleGoogleSignIn);
+
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Error signing out: ", error);
+                await showCustomAlert(error.message, 'Logout Error');
+            }
+        });
+
+        downloadLinks.forEach(link => {
+            link.addEventListener('click', async function(e) {
+                const user = auth.currentUser;
+                if (!user) {
+                    e.preventDefault(); // Stop the download
+                    authMessage.textContent = "Please sign in or sign up to download resources.";
+                    authMessage.style.display = 'block';
+                    authModal.style.display = 'flex';
+                }
+            });
+        });
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    updateUIForLoggedInUser(userDoc.data().name);
+                } else {
+                    updateUIForLoggedInUser(user.displayName || user.email);
+                }
+                loadUserNotes(user.uid);
+            } else {
+                // User is signed out
+                updateUIForLoggedOutUser();
+            }
+        });
+        
+
+        function showSuccessPopup() {
+            successModal.style.display = 'flex';
+            setTimeout(() => {
+                successModal.style.display = 'none';
+            }, 500);
+        }
+
+        function updateUIForLoggedInUser(name) {
+            usernameDisplay.textContent = name;
+            userAccountBtn.style.display = 'none';
+            logoutBtn.style.display = 'block';
+            changePasswordBtn.style.display = 'block'; // Show change password button
+             // The course notes section is now always visible, no need to toggle 'hidden' class
+        }
+
+        function updateUIForLoggedOutUser() {
+            usernameDisplay.textContent = 'Guest';
+            userAccountBtn.style.display = 'block';
+            logoutBtn.style.display = 'none';
+            changePasswordBtn.style.display = 'none'; // Hide change password button
+            // Clear the course notes section content when logged out
+            document.getElementById('saved-notes').innerHTML = '';
+            document.getElementById('note-editor').innerHTML = '';
+            document.getElementById('view-all-notes-container').classList.add('hidden'); // Hide the view all button
+        }
+
+        // Forgot Password Functionality
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            authModal.style.display = 'none';
+            forgotPasswordModal.style.display = 'flex';
+        });
+
+        closeForgotPasswordModalBtn.addEventListener('click', () => {
+            forgotPasswordModal.style.display = 'none';
+        });
+
+        sendResetEmailBtn.addEventListener('click', async () => {
+            const email = resetEmailInput.value;
+            if (email) {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    await showCustomAlert("Password reset email sent! Please check your inbox.", "Password Reset");
+                    forgotPasswordModal.style.display = 'none';
+                } catch (error) {
+                    console.error("Error sending password reset email: ", error);
+                    await showCustomAlert(error.message, 'Password Reset Error');
+                }
+            } else {
+                await showCustomAlert("Please enter your email address.", "Input Required");
+            }
+        });
+
+        // Change Password Functionality
+        changePasswordBtn.addEventListener('click', () => {
+            changePasswordModal.style.display = 'flex';
+        });
+
+        closeChangePasswordModalBtn.addEventListener('click', () => {
+            changePasswordModal.style.display = 'none';
+            // Clear input fields when closing
+            currentPasswordInput.value = '';
+            newPasswordInput.value = '';
+            confirmNewPasswordInput.value = '';
+        });
+
+        updatePasswordBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                await showCustomAlert("You must be logged in to change your password.", "Authentication Required");
+                changePasswordModal.style.display = 'none';
+                authModal.style.display = 'flex';
+                return;
+            }
+
+            const currentPassword = currentPasswordInput.value;
+            const newPassword = newPasswordInput.value;
+            const confirmNewPassword = confirmNewPasswordInput.value;
+
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                await showCustomAlert("All fields are required.", "Input Error");
+                return;
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                await showCustomAlert("New password and confirm password do not match.", "Input Error");
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                await showCustomAlert("New password must be at least 6 characters long.", "Input Error");
+                return;
+            }
+
+            try {
+                // Reauthenticate user before changing password
+                const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                await reauthenticateWithCredential(user, credential);
+                
+                // Update password
+                await updatePassword(user, newPassword);
+                await showCustomAlert("Your password has been successfully updated!", "Password Changed");
+                changePasswordModal.style.display = 'none';
+                // Clear input fields after successful update
+                currentPasswordInput.value = '';
+                newPasswordInput.value = '';
+                confirmNewPasswordInput.value = '';
+            } catch (error) {
+                console.error("Error changing password: ", error);
+                await showCustomAlert(error.message, 'Password Change Error');
+            }
+        });
+
+
+        // Course Notes Functionality
+        const savedNotesContainer = document.getElementById("saved-notes");
+        const editorContainer = document.getElementById("note-editor");
+        const addNoteBtn = document.getElementById("add-note");
+        const viewAllNotesBtn = document.getElementById("view-all-notes-btn");
+        const viewAllNotesContainer = document.getElementById("view-all-notes-container");
+        const NOTES_TO_SHOW_INITIALLY = 5; // Define how many notes to show initially
+
+        async function loadUserNotes(uid) {
+            savedNotesContainer.innerHTML = '';
+            editorContainer.innerHTML = '';
+            viewAllNotesContainer.classList.add('hidden'); // Hide button by default
+
+            if (!uid) {
+                console.warn("User ID not available to load notes.");
+                return;
+            }
+            try {
+                const q = query(collection(db, "notes"), where("userId", "==", uid));
+                const querySnapshot = await getDocs(q);
+                const notes = [];
+                querySnapshot.forEach((doc) => {
+                    notes.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sort notes by creation date, newest first
+                notes.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
+
+                notes.forEach((note, index) => {
+                    renderSavedNote(note.id, note.title, note.content, index >= NOTES_TO_SHOW_INITIALLY);
+                });
+
+                if (notes.length > NOTES_TO_SHOW_INITIALLY) {
+                    viewAllNotesContainer.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error("Error loading notes: ", error);
+                await showCustomAlert("Failed to load your notes. Please try again.", "Error");
+            }
+        }
+        
+        function renderSavedNote(id, title, content, isHidden = false) {
+            const note = document.createElement("div");
+            note.className = "bg-white shadow-md rounded-lg p-4 cursor-pointer border border-indigo-300 hover:bg-indigo-50 transition note-item";
+            if (isHidden) {
+                note.classList.add('hidden'); // Add 'hidden' class for notes beyond the initial display limit
+            }
+            note.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-indigo-700">${title}</h3>
+                    <button class="text-red-500 hover:text-red-700 delete-btn">Delete</button>
+                </div>
+            `;
+
+            note.querySelector(".delete-btn").addEventListener("click", async (e) => {
+                e.stopPropagation();
+                const user = auth.currentUser;
+                console.log("User attempting to delete note:", user); // Debugging line
+                if (!user) {
+                    await showCustomAlert("You must be logged in to delete notes.", "Authentication Required");
+                    authModal.style.display = 'flex';
+                    return;
+                }
+                const confirmed = await showCustomAlert("Are you sure you want to delete this note?", "Confirm Delete", true);
+                if (confirmed) {
+                    try {
+                        await deleteDoc(doc(db, "notes", id));
+                        loadUserNotes(auth.currentUser.uid); // Reload notes after deletion
+                    } catch (error) {
+                        console.error("Error deleting note: ", error);
+                        await showCustomAlert("Failed to delete note. Please try again.", "Error");
+                    }
+                }
+            });
+
+            note.addEventListener("click", () => {
+                openEditor(id, title, content);
+            });
+            
+            savedNotesContainer.appendChild(note);
+        }
+        
+        function openEditor(id = null, title = "", content = "") {
+            editorContainer.innerHTML = "";
+            const editor = document.createElement("div");
+            editor.className = "bg-white shadow-md rounded-lg p-4";
+            editor.innerHTML = `
+                <input type="text" value="${title}" placeholder="Note Title" class="text-xl font-bold w-full mb-2 px-2 py-1 border rounded" />
+                <textarea rows="5" class="w-full border rounded px-2 py-1 resize-y">${content}</textarea>
+                <div class="flex justify-end mt-2">
+                    <button class="cancel-note bg-gray-500 text-white px-4 py-1 rounded hover:bg-gray-600 mr-2">Cancel</button>
+                    <button class="save-note bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700">Save</button>
+                </div>
+            `;
+            
+            editor.querySelector(".save-note").addEventListener("click", async () => {
+                const newTitle = editor.querySelector("input").value.trim() || "Untitled Note";
+                const newContent = editor.querySelector("textarea").value.trim();
+                const user = auth.currentUser;
+                console.log("User attempting to save note:", user); // Debugging line
+
+                if (user) {
+                    try {
+                        if (id) {
+                            // Update existing note
+                            const noteRef = doc(db, "notes", id);
+                            await updateDoc(noteRef, {
+                                title: newTitle,
+                                content: newContent
+                            });
+                        } else {
+                            // Save new note
+                            await addDoc(collection(db, "notes"), {
+                                userId: user.uid,
+                                title: newTitle,
+                                content: newContent,
+                                createdAt: new Date() // Add creation timestamp
+                            });
+                        }
+                        loadUserNotes(user.uid); // Reload notes after saving
+                        editorContainer.innerHTML = "";
+                    } catch (error) {
+                        console.error("Error saving note: ", error);
+                        await showCustomAlert("Failed to save note. Please try again.", "Error");
+                    }
+                } else {
+                    await showCustomAlert("You must be logged in to save notes.", "Authentication Required");
+                }
+            });
+
+            editor.querySelector(".cancel-note").addEventListener("click", () => {
+                editorContainer.innerHTML = "";
+            });
+            
+            editorContainer.appendChild(editor);
+        }
+        
+        addNoteBtn.addEventListener("click", async () => {
+            if (auth.currentUser) {
+                openEditor();
+            } else {
+                await showCustomAlert("Please sign in to add a new note.", "Authentication Required");
+                authModal.style.display = 'flex'; // Show the auth modal if not logged in
+            }
+        });
+
+        // Function to show all notes
+        function viewAllNotes() {
+            const hiddenNotes = savedNotesContainer.querySelectorAll('.note-item.hidden');
+            hiddenNotes.forEach(note => {
+                note.classList.remove('hidden');
+            });
+            viewAllNotesContainer.classList.add('hidden'); // Hide the "View All Notes" button after showing all
+        }
+
+        viewAllNotesBtn.addEventListener('click', viewAllNotes);
+
+
+        // AI Quiz Generator
+        const generateQuizBtn = document.getElementById('generate-quiz-btn');
+        const quizContainer = document.getElementById('quiz-container');
+        const quizResults = document.getElementById('quiz-results');
+        const quizLoader = document.getElementById('quiz-loader');
+        const quizExplanationContainer = document.getElementById('quiz-explanation-container');
+        const showExplanationBtn = document.getElementById('show-explanation-btn');
+        const explanationsDiv = document.getElementById('explanations');
+        const takeAnotherQuizBtn = document.getElementById('take-another-quiz-btn');
+
+
+        let currentQuizData = [];
+        
+        // Function to make API call with exponential backoff
+        async function callGeminiApi(payload) {
+            const apiKey = "AIzaSyC4eK_BJ8cJkJyLG-9pEnQlCODPdCZpeFM"; // Canvas will provide this at runtime
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            let retries = 0;
+            const maxRetries = 5;
+            const baseDelay = 1000; // 1 second
+
+            while (retries < maxRetries) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status === 429) { // Too Many Requests
+                        retries++;
+                        const delay = baseDelay * Math.pow(2, retries);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        throw new Error("Unexpected API response structure.");
+                    }
+                } catch (error) {
+                    console.error("Error calling Gemini API:", error);
+                    retries++;
+                    const delay = baseDelay * Math.pow(2, retries);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+            throw new Error("Failed to get response from Gemini API after multiple retries.");
+        }
+
+        generateQuizBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                await showCustomAlert("Please sign in to take a quiz.", "Authentication Required");
+                authModal.style.display = 'flex';
+                return;
+            }
+
+            const subject = document.getElementById('quiz-subject').value;
+            // Clear previous quiz and results when generating a new one
+            quizContainer.innerHTML = '';
+            quizResults.innerHTML = '';
+            explanationsDiv.innerHTML = ''; 
+            quizExplanationContainer.classList.add('hidden'); 
+            quizLoader.style.display = 'flex';
+
+            let prompt = `Generate 5 multiple-choice questions for Grade 7 to 9 students in Ghana, adhering to the Ghana education syllabus. Each question should have 4 options (A, B, C, D) and indicate the correct answer (0-indexed). Also, provide a concise explanation for why the correct answer is correct. The questions should be general knowledge and cover topics relevant to Ghanaian students.`;
+
+            if (subject !== "Mixed Topics") {
+                prompt = `Generate 7 multiple-choice questions on ${subject} for Grade 7 to 9 students in Ghana, adhering to the Ghana education syllabus. Each question should have 4 options (A, B, C, D) and indicate the correct answer (0-indexed). Also, provide a concise explanation for why the correct answer is correct.`;
+            }
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                "question": { "type": "STRING" },
+                                "options": {
+                                    "type": "ARRAY",
+                                    "items": { "type": "STRING" }
+                                },
+                                "correctAnswer": { "type": "NUMBER" }, // Index of the correct option (0-indexed)
+                                "explanation": { "type": "STRING" } // New field for explanation
+                            },
+                            "propertyOrdering": ["question", "options", "correctAnswer", "explanation"]
+                        }
+                    }
+                }
+            };
+
+            try {
+                const rawResponse = await callGeminiApi(payload);
+                const quizData = JSON.parse(rawResponse);
+                currentQuizData = quizData;
+                
+                displayQuiz(currentQuizData);
+            } catch (error) {
+                console.error("Failed to generate quiz:", error);
+                await showCustomAlert("Failed to generate quiz. Please try again.", "Quiz Generation Error");
+            } finally {
+                quizLoader.style.display = 'none';
+            }
+        });
+
+        function displayQuiz(questions) {
+            questions.forEach((q, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.classList.add('mb-4');
+                let optionsHTML = '';
+                q.options.forEach((option, i) => {
+                    optionsHTML += `
+                        <label class="block cursor-pointer p-2 rounded hover:bg-gray-100">
+                            <input type="radio" name="question${index}" value="${i}" class="mr-2">
+                            ${option}
+                        </label>
+                    `;
+                });
+                questionElement.innerHTML = `
+                    <p class="font-semibold">${index + 1}. ${q.question}</p>
+                    <div class="ml-4 mt-2 space-y-1">${optionsHTML}</div>
+                    <div id="correct-answer-${index}" class="text-green-600 font-medium mt-2 hidden"></div>
+                    <div id="explanation-${index}" class="text-gray-700 text-sm mt-1 hidden"></div>
+                `;
+                quizContainer.appendChild(questionElement);
+            });
+            const submitButton = document.createElement('button');
+            submitButton.id = 'submit-quiz-btn';
+            submitButton.textContent = 'Submit Quiz';
+            submitButton.classList.add('w-full', 'bg-green-500', 'text-white', 'py-2', 'rounded-md', 'hover:bg-green-600', 'transition', 'mt-4');
+            submitButton.onclick = submitQuiz;
+            quizContainer.appendChild(submitButton);
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            currentQuizData.forEach((q, index) => {
+                const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                const correctAnswerElement = document.getElementById(`correct-answer-${index}`);
+                const explanationElement = document.getElementById(`explanation-${index}`);
+
+                if (selectedOption && parseInt(selectedOption.value) === q.correctAnswer) {
+                    score++;
+                    correctAnswerElement.textContent = `Correct! The answer is ${q.options[q.correctAnswer]}.`;
+                    correctAnswerElement.classList.remove('hidden');
+                    correctAnswerElement.classList.remove('text-red-600');
+                    correctAnswerElement.classList.add('text-green-600');
+                } else {
+                    correctAnswerElement.textContent = `Incorrect. The correct answer is ${q.options[q.correctAnswer]}.`;
+                    correctAnswerElement.classList.remove('hidden');
+                    correctAnswerElement.classList.remove('text-green-600');
+                    correctAnswerElement.classList.add('text-red-600');
+                }
+            });
+            quizResults.textContent = `You scored ${score} out of ${currentQuizData.length}!`;
+            quizExplanationContainer.classList.remove('hidden'); // Show the explanation button container
+        }
+
+        showExplanationBtn.addEventListener('click', () => {
+            explanationsDiv.innerHTML = ''; // Clear previous explanations
+            currentQuizData.forEach((q, index) => {
+                const explanationElement = document.getElementById(`explanation-${index}`);
+                explanationElement.textContent = `Explanation: ${q.explanation}`;
+                explanationElement.classList.remove('hidden');
+            });
+            // Optionally hide the explanation button after showing explanations
+            // showExplanationBtn.classList.add('hidden'); 
+        });
+
+        takeAnotherQuizBtn.addEventListener('click', () => {
+            quizContainer.innerHTML = '';
+            quizResults.innerHTML = '';
+            explanationsDiv.innerHTML = '';
+            quizExplanationContainer.classList.add('hidden'); // Hide the explanation and "Take Another Quiz" buttons
+        });
+
+    </script>
+
+    
+</body>
+</html>
